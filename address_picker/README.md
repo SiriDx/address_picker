@@ -61,4 +61,3 @@ final AddressCallback onSelectedAddressChanged;
 /// 省市区文字显示样式
 final TextStyle style;
 ```
-
