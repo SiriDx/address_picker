@@ -22,22 +22,27 @@ enum AddressPickerMode {
 }
 
 class AddressPicker extends StatefulWidget {
-
   /// 选中的地址发生改变回调
   final AddressCallback onSelectedAddressChanged;
 
   /// 选择模式
   /// province 一级: 省
-  /// provinceAndCity 二级: 省市 
+  /// provinceAndCity 二级: 省市
   /// provinceCityAndDistrict 三级: 省市区
   final AddressPickerMode mode;
-  
+
   /// 省市区文字显示样式
   final TextStyle style;
+
+  ///省市区
+  final String prov, city, dist;
 
   AddressPicker(
       {Key key,
       this.mode = AddressPickerMode.provinceCityAndDistrict,
+      this.prov,
+      this.city,
+      this.dist,
       this.onSelectedAddressChanged,
       this.style = const TextStyle(color: Colors.black, fontSize: 17)})
       : super(key: key);
@@ -52,10 +57,9 @@ class _AddressPickerState extends State<AddressPicker> {
   AddressCity _selectedCity;
   AddressDistrict _selectedDistrict;
 
-  FixedExtentScrollController _cityScrollController =
-      FixedExtentScrollController(initialItem: 0);
-  FixedExtentScrollController _districtScrollController =
-      FixedExtentScrollController(initialItem: 0);
+  FixedExtentScrollController _provScrollController,
+      _cityScrollController,
+      _districtScrollController;
 
   @override
   void dispose() {
@@ -75,8 +79,42 @@ class _AddressPickerState extends State<AddressPicker> {
     setState(() {
       _provinces = addressData;
       _selectedProvince = _provinces.first;
+      if (widget.prov != null) {
+        _provinces.asMap().forEach((i, e) {
+          if (e.province == widget.prov) {
+            _selectedProvince = e;
+            _provScrollController = FixedExtentScrollController(initialItem: i);
+          }
+        });
+      }
       _selectedCity = _selectedProvince.cities.first;
+      if (widget.city != null) {
+        _selectedProvince.cities.asMap().forEach((i, e) {
+          if (e.city == widget.city) {
+            _selectedCity = e;
+            _cityScrollController = FixedExtentScrollController(initialItem: i);
+          }
+        });
+      }
       _selectedDistrict = _selectedCity.district.first;
+      if (widget.dist != null) {
+        _selectedCity.district.asMap().forEach((i, e) {
+          if (e.area == widget.dist) {
+            _selectedDistrict = e;
+            _districtScrollController =
+                FixedExtentScrollController(initialItem: i);
+          }
+        });
+      }
+      if (_provScrollController == null) {
+        _provScrollController = FixedExtentScrollController(initialItem: 0);
+      }
+      if (_cityScrollController == null) {
+        _cityScrollController = FixedExtentScrollController(initialItem: 0);
+      }
+      if (_districtScrollController == null) {
+        _districtScrollController = FixedExtentScrollController(initialItem: 0);
+      }
     });
   }
 
@@ -103,6 +141,7 @@ class _AddressPickerState extends State<AddressPicker> {
           Expanded(
             flex: 1,
             child: CupertinoPicker.builder(
+              scrollController: _provScrollController,
               backgroundColor: Colors.white,
               childCount: _provinces?.length ?? 0,
               itemBuilder: (context, index) {
