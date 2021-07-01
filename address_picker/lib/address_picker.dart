@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'address_model.dart';
 
 class Address {
-  AddressProvince currentProvince;
-  AddressCity currentCity;
-  AddressDistrict currentDistrict;
+  AddressProvince? currentProvince;
+  AddressCity? currentCity;
+  AddressDistrict? currentDistrict;
 
   Address({this.currentProvince, this.currentCity, this.currentDistrict});
 }
@@ -24,7 +24,7 @@ enum AddressPickerMode {
 class AddressPicker extends StatefulWidget {
 
   /// 选中的地址发生改变回调
-  final AddressCallback onSelectedAddressChanged;
+  final AddressCallback? onSelectedAddressChanged;
 
   /// 选择模式
   /// province 一级: 省
@@ -36,7 +36,7 @@ class AddressPicker extends StatefulWidget {
   final TextStyle style;
 
   AddressPicker(
-      {Key key,
+      {Key? key,
       this.mode = AddressPickerMode.provinceCityAndDistrict,
       this.onSelectedAddressChanged,
       this.style = const TextStyle(color: Colors.black, fontSize: 17)})
@@ -46,11 +46,11 @@ class AddressPicker extends StatefulWidget {
 }
 
 class _AddressPickerState extends State<AddressPicker> {
-  List<AddressProvince> _provinces;
+  List<AddressProvince>? _provinces;
 
-  AddressProvince _selectedProvince;
-  AddressCity _selectedCity;
-  AddressDistrict _selectedDistrict;
+  AddressProvince? _selectedProvince;
+  AddressCity? _selectedCity;
+  late AddressDistrict _selectedDistrict;
 
   FixedExtentScrollController _cityScrollController =
       FixedExtentScrollController(initialItem: 0);
@@ -74,9 +74,9 @@ class _AddressPickerState extends State<AddressPicker> {
     var addressData = await AddressManager.loadAddressData(context);
     setState(() {
       _provinces = addressData;
-      _selectedProvince = _provinces.first;
-      _selectedCity = _selectedProvince.cities.first;
-      _selectedDistrict = _selectedCity.district.first;
+      _selectedProvince = _provinces?.first ?? AddressProvince();
+      _selectedCity = _selectedProvince?.cities?.first ?? AddressCity();
+      _selectedDistrict = _selectedCity?.district?.first ?? AddressDistrict();
     });
   }
 
@@ -86,13 +86,15 @@ class _AddressPickerState extends State<AddressPicker> {
           currentProvince: _selectedProvince,
           currentCity: _selectedCity,
           currentDistrict: _selectedDistrict);
-      widget.onSelectedAddressChanged(address);
+      if (widget.onSelectedAddressChanged != null) {
+        widget.onSelectedAddressChanged!(address);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_provinces == null || _provinces.isEmpty) {
+    if (_provinces == null || (_provinces?.isEmpty ?? true)) {
       return Container();
     }
 
@@ -106,11 +108,11 @@ class _AddressPickerState extends State<AddressPicker> {
               backgroundColor: Colors.white,
               childCount: _provinces?.length ?? 0,
               itemBuilder: (context, index) {
-                var item = _provinces[index];
+                var item = _provinces?[index];
                 return Container(
                   alignment: Alignment.center,
                   child: Text(
-                    item.province,
+                    item?.province ?? "未知省份",
                     style: widget.style,
                   ),
                 );
@@ -118,9 +120,9 @@ class _AddressPickerState extends State<AddressPicker> {
               itemExtent: 44,
               onSelectedItemChanged: (item) {
                 setState(() {
-                  _selectedProvince = _provinces[item];
-                  _selectedCity = _selectedProvince.cities.first;
-                  _selectedDistrict = _selectedCity.district.first;
+                  _selectedProvince = _provinces?[item] ?? AddressProvince();
+                  _selectedCity = _selectedProvince?.cities?.first ?? AddressCity();
+                  _selectedDistrict = _selectedCity?.district?.first ?? AddressDistrict();
                   _cityScrollController.animateToItem(0,
                       curve: Curves.easeInOut,
                       duration: Duration(milliseconds: 250));
@@ -141,11 +143,11 @@ class _AddressPickerState extends State<AddressPicker> {
                     backgroundColor: Colors.white,
                     childCount: _selectedProvince?.cities?.length ?? 0,
                     itemBuilder: (context, index) {
-                      var item = _selectedProvince.cities[index];
+                      var item = _selectedProvince?.cities?[index];
                       return Container(
                         alignment: Alignment.center,
                         child: Text(
-                          item.city,
+                          item?.city ?? "未知城市",
                           style: widget.style,
                         ),
                       );
@@ -153,8 +155,8 @@ class _AddressPickerState extends State<AddressPicker> {
                     itemExtent: 44,
                     onSelectedItemChanged: (item) {
                       setState(() {
-                        _selectedCity = _selectedProvince.cities[item];
-                        _selectedDistrict = _selectedCity.district.first;
+                        _selectedCity = _selectedProvince?.cities?[item] ?? AddressCity();
+                        _selectedDistrict = _selectedCity?.district?.first ?? AddressDistrict();
                         _districtScrollController.animateToItem(0,
                             curve: Curves.easeInOut,
                             duration: Duration(milliseconds: 250));
@@ -171,19 +173,19 @@ class _AddressPickerState extends State<AddressPicker> {
                     backgroundColor: Colors.white,
                     childCount: _selectedCity?.district?.length ?? 0,
                     itemBuilder: (context, index) {
-                      var item = _selectedCity.district[index];
+                      var item = _selectedCity?.district?[index];
                       return Container(
                         alignment: Alignment.center,
                         child: Text(
-                          item.area,
+                          item?.area ?? "未知地区",
                           style: widget.style,
                         ),
                       );
                     },
                     itemExtent: 44,
                     onSelectedItemChanged: (item) {
-                      var district = _selectedCity.district[item];
-                      _selectedDistrict = district;
+                      var district = _selectedCity?.district?[item];
+                      _selectedDistrict = district ?? AddressDistrict();
                       _updateCurrent();
                     },
                   ),

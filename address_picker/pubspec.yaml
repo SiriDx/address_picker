@@ -1,11 +1,11 @@
 name: address_picker
 description: Flutter城市选择器, 省市区选择器
-version: 0.0.1
+version: 1.0.0
 author: chendaxin <dxchen321@gmail.com>
 homepage: https://github.com/SiriDx/address_picker
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:

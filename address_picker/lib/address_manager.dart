@@ -5,33 +5,35 @@ import 'address_model.dart';
 
 abstract class AddressManager {
 
-  static List<AddressProvince> _provinces;
+  static List<AddressProvince>? _provinces;
   static Map<String, AddressProvince> _provinceMap = Map<String, AddressProvince>();
   static Map<String, AddressCity> _cityMap = Map<String, AddressCity>();
   static Map<String, AddressDistrict> _districtMap = Map<String, AddressDistrict>();
-  
+
   static Future<List<AddressProvince>> loadAddressData (
       BuildContext context) async {
 
-    if (_provinces != null && _provinces.isNotEmpty) {
-      return _provinces;
+    if (_provinces != null && (_provinces?.isNotEmpty ?? false)) {
+      return _provinces!;
     }
     var address = await rootBundle.loadString('packages/address_picker/assets/address.json');
     var data = json.decode(address);
-      var provinces = new List<AddressProvince>();
-      if (json != null && data is List) {
+      var provinces = <AddressProvince>[];
+      if (data is List) {
         data.forEach((v) {
           var province = AddressProvince.fromJson(v, cityMap: _cityMap, districtMap: _districtMap);
-          _provinceMap[province.provinceid] = province;
+          if (province.provinceid != null) {
+            _provinceMap[province.provinceid!] = province;
+          }
           provinces.add(province);
         });
         _provinces = provinces;
-        return _provinces;
+        return _provinces!;
       }
-      return List<AddressProvince>();
+      return <AddressProvince>[];
   }
 
-  static Future<AddressProvince> getProvince(BuildContext context, String provinceId) async {
+  static Future<AddressProvince?> getProvince(BuildContext context, String provinceId) async {
     if (_provinceMap.isEmpty) {
       var provinces = await loadAddressData(context);
       if (provinces.isNotEmpty) {
@@ -43,7 +45,7 @@ abstract class AddressManager {
     }
   }
 
-  static Future<AddressCity> getCity(BuildContext context, String cityId) async {
+  static Future<AddressCity?> getCity(BuildContext context, String cityId) async {
     if (_cityMap.isEmpty) {
       var provinces = await loadAddressData(context);
       if (provinces.isNotEmpty) {
@@ -55,7 +57,7 @@ abstract class AddressManager {
     }
   }
 
-  static Future<AddressDistrict> getDistrict(BuildContext context, String districtId) async {
+  static Future<AddressDistrict?> getDistrict(BuildContext context, String districtId) async {
     if (_districtMap.isEmpty) {
       var provinces = await loadAddressData(context);
       if (provinces.isNotEmpty) {
