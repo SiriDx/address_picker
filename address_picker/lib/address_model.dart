@@ -1,10 +1,10 @@
 class AddressProvince {
-  int id;
-  String provinceid;
-  String province;
-  String lng;
-  String lat;
-  List<AddressCity> cities;
+  int? id;
+  String? provinceid;
+  String? province;
+  String? lng;
+  String? lat;
+  List<AddressCity>? cities;
 
   AddressProvince(
       {this.id,
@@ -14,44 +14,46 @@ class AddressProvince {
       this.lat,
       this.cities});
 
-  AddressProvince.fromJson(Map<String, dynamic> json, {Map<String, AddressCity> cityMap, Map<String, AddressDistrict> districtMap}) {
+  AddressProvince.fromJson(Map<String, dynamic> json, {Map<String, AddressCity>? cityMap, Map<String, AddressDistrict>? districtMap}) {
     id = json['id'];
     provinceid = json['provinceid'];
     province = json['province'];
     lng = json['lng'];
     lat = json['lat'];
     if (json['cities'] != null) {
-      cities = new List<AddressCity>();
+      cities = <AddressCity>[];
       json['cities'].forEach((v) {
         var city = AddressCity.fromJson(v, districtMap: districtMap);
-        cityMap[city.cityid] = city;
-        cities.add(city);
+        if (city.cityid != null) {
+          cityMap?[city.cityid!] = city;
+        }
+        cities!.add(city);
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['id'] = this.id;
     data['provinceid'] = this.provinceid;
     data['province'] = this.province;
     data['lng'] = this.lng;
     data['lat'] = this.lat;
     if (this.cities != null) {
-      data['cities'] = this.cities.map((v) => v.toJson()).toList();
+      data['cities'] = this.cities!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class AddressCity {
-  int id;
-  String city;
-  String cityid;
-  String provinceid;
-  String lng;
-  String lat;
-  List<AddressDistrict> district;
+  int? id;
+  String? city;
+  String? cityid;
+  String? provinceid;
+  String? lng;
+  String? lat;
+  List<AddressDistrict>? district;
 
   AddressCity(
       {this.id,
@@ -62,7 +64,7 @@ class AddressCity {
       this.lat,
       this.district});
 
-  AddressCity.fromJson(Map<String, dynamic> json, {Map<String, AddressDistrict> districtMap}) {
+  AddressCity.fromJson(Map<String, dynamic> json, {Map<String, AddressDistrict>? districtMap}) {
     id = json['id'];
     city = json['city'];
     cityid = json['cityid'];
@@ -70,17 +72,22 @@ class AddressCity {
     lng = json['lng'];
     lat = json['lat'];
     if (json['district'] != null) {
-      district = new List<AddressDistrict>();
+      district = <AddressDistrict>[];
+      if (districtMap == null) {
+        districtMap = Map<String, AddressDistrict>();
+      }
       json['district'].forEach((v) {
         var dis = AddressDistrict.fromJson(v);
-        districtMap[dis.areaid] = dis;
-        district.add(dis);
+        if (dis.areaid != null) {
+          districtMap![dis.areaid!] = dis;
+        }
+        district!.add(dis);
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['id'] = this.id;
     data['city'] = this.city;
     data['cityid'] = this.cityid;
@@ -88,19 +95,19 @@ class AddressCity {
     data['lng'] = this.lng;
     data['lat'] = this.lat;
     if (this.district != null) {
-      data['district'] = this.district.map((v) => v.toJson()).toList();
+      data['district'] = this.district?.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class AddressDistrict {
-  int id;
-  String area;
-  String areaid;
-  String cityid;
-  String lng;
-  String lat;
+  int? id;
+  String? area;
+  String? areaid;
+  String? cityid;
+  String? lng;
+  String? lat;
 
   AddressDistrict({this.id, this.area, this.areaid, this.cityid, this.lng, this.lat});
 
@@ -114,7 +121,7 @@ class AddressDistrict {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data =  Map<String, dynamic>();
     data['id'] = this.id;
     data['area'] = this.area;
     data['areaid'] = this.areaid;
